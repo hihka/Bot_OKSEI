@@ -8,8 +8,7 @@ from aiogram.types import Message
 from config import TOKEN
 
 import kb
-# sfasfsfasfdas
-a = 0
+
 bot = Bot(TOKEN)
 dp = Dispatcher()   
 
