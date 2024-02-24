@@ -9,6 +9,9 @@ from config import TOKEN
 
 import kb
 
+a = 1 
+print(a)
+
 bot = Bot(TOKEN)
 dp = Dispatcher()   
 
