@@ -1,12 +1,14 @@
 from aiogram.types import (
     ReplyKeyboardMarkup,
     KeyboardButton,
-    InlineKeyboardButton,
-    InlineKeyboardMarkup
+
 )
 
 main_kb = ReplyKeyboardMarkup(
     keyboard=[
+        [
+            KeyboardButton(text='Написать вопрос')
+        ],
         [
             KeyboardButton(text='Лента вопросов'),
             KeyboardButton(text='Мои вопросы')

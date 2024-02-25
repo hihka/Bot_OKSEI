@@ -3,19 +3,23 @@ import sqlite3
 import getVp
 
 from aiogram import Bot, Dispatcher, F
-from aiogram.filters import Command, CommandObject
+from aiogram.filters import Command 
 from aiogram.types import Message 
+
+from aiogram.fsm.context import FSMContext
+from utils.statesVp import StepsVp
+
 from config import TOKEN
 
 import kb
 
 
-bot = Bot(TOKEN)
+bot = Bot(TOKEN, parse_mode='HTML')
 dp = Dispatcher()   
 
 @dp.message(Command('start'))
 async def start(message : Message):
-    await message.answer(f"Привет {message.from_user.first_name}, чтобы задать вопрос Сергею Андреевичу напиши в чат /napisat_vopros.\n\nВот пример /napisat_vopros Как ваши дела?", reply_markup=kb.main_kb)
+    await message.answer(f"Здравствуй {message.from_user.first_name}.", reply_markup=kb.main_kb)
 
 
 @dp.message(Command('help'))
@@ -23,32 +27,15 @@ async def help(message: Message):
     await message.answer('Возникли какие-то вопросы на пиши @feedback666_bot')
 
 
-@dp.message(Command('napisat_vopros'))
-async def vopros(message: Message, command: CommandObject | None=None ): 
-    msg = command.args
+@dp.message(F.text == "Написать вопрос")
+async def start(message: Message, state: FSMContext):
+    await message.answer('Напишите свой вопрос', reply_markup=kb.kb)
+    await state.set_state(StepsVp.GET_VP)
 
-    if not msg == None:
-        db = sqlite3.connect('main.db')
 
-        c = db.cursor()
-
-        # c.execute("""CREATE TABLE vp (
-        #           username text,
-        #           vp text,
-        #           otvet text
-        # )""")
-
-        c.execute(f"INSERT INTO vp VALUES ('{message.chat.id}', '{message.from_user.username}', '{msg}', 'None')")
-
-        db.commit()
-        db.close()
-        
-        # await message.answer("вопрос отправлен")
-        await message.answer(getVp.postVp(msg))
-    else:
-        await message.answer("Вы не написали вопрос\nВот пример команды /napisat_vopros Как ваши дела?")
-    await getVp.zapis_otveta()
-
+@dp.message(F.text == 'Назад')
+async def back(message: Message):
+    await message.answer('Вы вернулись в главное меню', reply_markup=kb.main_kb)
 
 @dp.message(F.text == "Мои вопросы")
 async def myVp(message: Message):
@@ -68,8 +55,7 @@ async def myVp(message: Message):
 
         db.close()
     else:
-        await message.answer('Ты еще не задал вопросов!')
-
+        await message.answer('Вы еще не задал вопросов!')
 
 @dp.message(F.text == 'Лента вопросов')
 async def lenta_vp(message: Message):
@@ -78,10 +64,40 @@ async def lenta_vp(message: Message):
 
     for question, answer in zip(vpp, otvv):
         await message.answer(f'Вопрос:\n{question}\n\nОтвет:\n{answer}')
+
+@dp.message(StepsVp.GET_VP)
+async def get_vp(message: Message, state: FSMContext):
+    context_data = await state.update_data(vp = message.text)
+    vpp = context_data.get('vp')
+
+    db = sqlite3.connect('main.db')
+
+    c = db.cursor()
+
+    # c.execute("""CREATE TABLE vp (
+    #           username text,
+    #           vp text,
+    #           otvet text
+    # )""")
+
+    c.execute(f"INSERT INTO vp VALUES ('{message.chat.id}', '{vpp}', 'None')")
+
+    db.commit()
+    db.close()
     
+    await message.answer('Вопрос отправлен вам придет уведомление когда Директор ответит на вопорос', await getVp.postVp(vpp), reply_markup=kb.kb ) 
+    await getVp.zapis_otveta()
+    await state.clear()
+
+
+
+
+
+
+
 
 async def main():
-    await bot.delete_webhook(drop_pending_updates=True)
+    await bot.delete_webhook(drop_pending_updates=True,)
     await dp.start_polling(bot)
 
 
