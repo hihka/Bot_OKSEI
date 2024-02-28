@@ -4,7 +4,7 @@ from aiogram.types import (
 
 )
 
-main_kb = ReplyKeyboardMarkup(
+main_menu= ReplyKeyboardMarkup(
     keyboard=[
         [
             KeyboardButton(text='Написать вопрос')
@@ -18,13 +18,12 @@ main_kb = ReplyKeyboardMarkup(
     one_time_keyboard=True,
 )
 
-kb = ReplyKeyboardMarkup(
+back = ReplyKeyboardMarkup(
     keyboard=[
         [
             KeyboardButton(text='Назад')
         ]
     ],
     resize_keyboard=True
-    # one_time_keyboard=True
 
 )

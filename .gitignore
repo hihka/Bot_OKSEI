@@ -1,2 +1,6 @@
-/config.py
-/__pycache__
+utils/__pycache__/statesQuestion.cpython-311.pyc
+.gitignore
+getVp.py
+kb.py
+main.py
+utils/statesVp.py
