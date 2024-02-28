@@ -31,7 +31,7 @@ async def fetch_html(url):
 
 
 async def write_and_send_to_db():
-    await sleep(20)
+    await sleep(10800)
     
     stop_while= 0
 
