@@ -12,15 +12,15 @@ bot = Bot(TOKEN, parse_mode='HTML')
 
 url_question = 'https://ask.oksei.ru/questions' 
 
-# question
+
 
 async def submitting_question(question):
-    data = {'opinion': str(question)}
+    data = {'question': str(question)}
     headers = {'User-Agent': generate_user_agent()}
     
     try:
         async with aiohttp.ClientSession() as session:
-            async with session.post('https://ask.oksei.ru/add_opinion.php', headers=headers, data=data, ssl=False) as response:
+            async with session.post('https://ask.oksei.ru/add_question.php', headers=headers, data=data, ssl=False) as response:
                 html_text = await response.text()
                 soup = BeautifulSoup(html_text, 'html.parser')
                 text = soup.get_text()
