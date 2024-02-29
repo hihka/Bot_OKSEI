@@ -12,15 +12,33 @@ bot = Bot(TOKEN, parse_mode='HTML')
 
 url_question = 'https://ask.oksei.ru/questions' 
 
+# question
+
 async def submitting_question(question):
-    data = {'question': str(question)}
+    data = {'opinion': str(question)}
     headers = {'User-Agent': generate_user_agent()}
     
-    async with aiohttp.ClientSession() as session:
-        async with session.post('https://ask.oksei.ru/add_question.php', headers=headers, data=data, ssl=False) as response:
-            html_text = await response.text()
-            soup = BeautifulSoup(html_text, 'html.parser')
-            text = soup.get_text()
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.post('https://ask.oksei.ru/add_opinion.php', headers=headers, data=data, ssl=False) as response:
+                html_text = await response.text()
+                soup = BeautifulSoup(html_text, 'html.parser')
+                text = soup.get_text()
+                return str(text) + '. Вам придет уведомление когда Директор ответит на вопорос'
+    except Exception as e:
+        await bot.send_message(chat_id='1701063338', text=f'Возникла ошибка с отправко вопроса на сайт\n\n<code>{str(e)}</code>')
+        return 'error'
+
+
+# async def submitting_question(question):
+    # data = {'question': str(question)}
+    # headers = {'User-Agent': generate_user_agent()}
+    
+    # async with aiohttp.ClientSession() as session:
+    #     async with session.post('https://ask.oksei.ru/add_question.php', headers=headers, data=data, ssl=False) as response:
+    #         html_text = await response.text()
+    #         soup = BeautifulSoup(html_text, 'html.parser')
+    #         text = soup.get_text()
 
 
 async def fetch_html(url):

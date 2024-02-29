@@ -76,17 +76,21 @@ async def get_vp(message: Message, state: FSMContext):
         context_data = await state.update_data(vp = message.text)
         vpp = context_data.get('vp')
 
-        db = sqlite3.connect('main.db')
-        c = db.cursor()
-        c.execute(f"INSERT INTO db_question VALUES ('{message.chat.id}', '{vpp}', 'None')")
+        output_submitting_question = await app.submitting_question(vpp)
+        if output_submitting_question == 'error':
+            await message.answer('Произошла ошибка над ней уже работают. Отправте ворпос позже.', reply_markup=keyboards.back)
+        else:
+            db = sqlite3.connect('main.db')
+            c = db.cursor()
+            c.execute(f"INSERT INTO db_question VALUES ('{message.chat.id}', '{vpp}', 'None', 'new')")
 
-        db.commit()
-        db.close()
-        
-        await message.answer('Вопрос отправлен вам придет уведомление когда Директор ответит на вопорос', await app.submitting_question(vpp), reply_markup=keyboards.back ) 
+            db.commit()
+            db.close()
+            
+            await message.answer(await app.submitting_question(vpp), reply_markup=keyboards.back)
 
-        await app.write_and_send_to_db()
-        await state.clear()
+            await app.write_and_send_to_db()
+            await state.clear()
     else:
         await message.reply("Напиши текст!", reply_markup=keyboards.back)
 
